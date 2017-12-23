@@ -1,0 +1,215 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html lang="en">
+
+	<head>
+
+		<meta charset="utf-8">
+		<title>christmas coding</title>
+
+
+		<style type="text/css">
+
+			canvas{
+				position: relative;
+				left: 0px;
+				top: 0px; 
+				border: 1px dashed yellow;
+			}
+
+			<script src="libraries/jquery-1.11.1.js"></script>
+
+		</style>
+
+	</head>
+
+
+	<body>
+
+		<canvas id="canvas_div" width=1500  height=1000 ></canvas>
+
+
+		<script type="text/javascript">
+
+
+			// basic generator object 
+			var generator_obj = function( global_root_this ){
+
+				console.log(">>> generator_obj INSTANTIATED! ");
+
+				// // // basic variables 
+
+				var global_root_this_ = global_root_this;
+				// local root this;
+				var root_this_ = this;
+
+
+				// // // timing
+
+				root_this_.frame_delay = 500;
+
+
+				// // // canvas div geometry
+
+				root_this_.canvas_obj = document.getElementById("canvas_div");
+				root_this_.ctx = root_this_.canvas_obj.getContext("2d");
+
+				root_this_.canvas_element_width = root_this_.canvas_obj.offsetWidth;
+				root_this_.canvas_element_height = root_this_.canvas_obj.offsetHeight;
+				console.log("-- canvas element width/heigth = "+root_this_.canvas_element_width+", "+root_this_.canvas_element_height );
+
+
+				// // // geometric settings
+
+
+				root_this_.rect_width = 3;
+				root_this_.rect_height = 45;
+
+				root_this_.curr_x = 0;
+				root_this_.curr_y = 0;
+
+				root_this_.dx = 5;
+				root_this_.dy = 0.1; 
+
+				root_this_.curr_rot = 0;
+				root_this_.rot_change = Math.PI*( 1/180 );
+
+
+				// // // colour! 
+
+				root_this_.col_r = 150;
+				root_this_.col_r__change = 0.1;
+				root_this_.col_g = 255;
+				root_this_.col_g__change = 0.001;
+				root_this_.col_b = 65;
+				root_this_.col_b__change = 0.001;
+
+				root_this_.col_opacity_value = 0.4;
+
+				root_this_.col__max_col_value = 255;
+
+
+				root_this_.ctx.fillStyle = "rgba( 200, 128, 128, 0.5 )";
+
+
+
+				/////////////// functions 
+
+
+				// update loc
+				root_this_.update_loc = function( root_this_ ){
+
+					// console.log(">>> update_loc");
+
+					// update location
+					root_this_.curr_x = Math.floor( (( root_this_.curr_x + root_this_.dx ) % root_this_.canvas_element_width  ) );
+					root_this_.curr_y = (( root_this_.curr_y + root_this_.dy ) % root_this_.canvas_element_height );
+
+					// update rotation
+					root_this_.curr_rot = root_this_.curr_rot + root_this_.rot_change ;
+				}
+
+
+				// update loc
+				root_this_.update_color = function( root_this_ ){
+
+					root_this_.col_r = ( ( root_this_.col_r + root_this_.col_r__change ) % root_this_.col__max_col_value ) ;
+					root_this_.col_g = ( ( root_this_.col_g + root_this_.col_g__change ) % root_this_.col__max_col_value ) ;
+					root_this_.col_b = ( ( root_this_.col_b + root_this_.col_b__change ) % root_this_.col__max_col_value ) ;
+
+
+					// set colour 
+					root_this_.ctx.fillStyle = "rgba( "+Math.floor( root_this_.col_r )+","+Math.floor( root_this_.col_g )+","+Math.floor( root_this_.col_b )+","+root_this_.col_opacity_value+")";
+				}
+
+
+				// feedback
+				root_this_.print_values = function( root_this_ ){
+
+					console.log(">>> print_values() ");
+
+					console.log( root_this_ );
+
+					console.log("---- x/y : "+root_this_.curr_x+","+root_this_.curr_y+" | curr rot : "+root_this_.curr_rot );
+
+				}
+
+
+				// draw 
+				root_this_.draw = function( root_this_ ){
+					//console.log(" >>> draw() ");	
+
+					//console.log("--- root_this_.global_root_this_ : ");
+					//console.log( root_this_.global_root_this_ );
+
+					// move into position 
+					root_this_.ctx.translate( root_this_.curr_x, root_this_.curr_y );
+
+					// rotate 
+					root_this_.ctx.rotate( root_this_.curr_rot );
+
+					// draw
+					root_this_.ctx.fillRect( 0, 0, root_this_.rect_width, root_this_.rect_height );
+
+					// reset transformation matrix 
+					root_this_.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+				}
+
+
+
+				//// update & draw steps
+
+				root_this_.update_and_draw = function(){
+
+					console.log( ">>> update_and_draw() " );					
+
+					root_this_.update_loc( root_this_ );
+
+					root_this_.update_color( root_this_ );
+
+					root_this_.draw( root_this_ );
+
+					// root_this_.print_values( root_this_ );
+				}
+
+			}
+
+
+
+			// // // // // initialisation // // // // 
+
+			// set up one generator
+			var gen1 = new generator_obj( this );
+
+
+			//// and set up another : 
+			var gen2 = new generator_obj( this );
+			gen2.curr_x = 250;
+			gen2.curr_y = 250;
+			gen2.rot_change = Math.PI*( 2/180 );
+
+			// now update and darw them both 
+	
+			window.setInterval( function(){ 
+						gen1.update_and_draw( gen1 ); 
+						gen2.update_and_draw( gen2 ); 
+						 }, 1 );
+ 
+
+/*
+			var update_and_draw__req_anim_frame = function(){
+				gen1.update_and_draw( gen1 ); 
+				gen2.update_and_draw( gen2 ); 
+				window.requestAnimationFrame(update_and_draw__req_anim_frame);
+			}
+
+			window.requestAnimationFrame(update_and_draw__req_anim_frame);
+*/
+		</script>
+
+	</body>
+
+</html>
